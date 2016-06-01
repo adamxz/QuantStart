@@ -11,7 +11,7 @@ import csv
 import MySQLdb
 import datetime
 
-file_url = "/home/adam/Quant/Projects/securities_list.csv"
+file_url = "/home/adam/workspace/QuantStart/tmp/securities_list.csv"
 db_host = 'localhost'
 db_user = 'root'
 db_passwd = '123456'

@@ -16,11 +16,13 @@ reload(sys)
 sys.setdefaultencoding( "utf-8" )
 
 import logging
+import socket
 from urllib2 import Request, urlopen
 from bs4 import BeautifulSoup
 import pypinyin
 import csv
 import datetime
+import time
 
 '''return the soup and state. 
 if the state is true, there is data for the security; 
@@ -29,8 +31,14 @@ def soup_read(url, file_csv):
   user_agent = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'
   header = {'User-Agent': user_agent}
   req = Request(url, headers = header)
-  response = urlopen(req)
-  page = response.read()
+  try:
+    response = urlopen(req)
+    page = response.read()
+  except socket.error:
+    logging.warning('%s is paused...' % url_postfix)
+    time.sleep(1)
+    response = urlopen(req)
+    page = response.read()
   response.close()
   soup = BeautifulSoup(page)
   if soup.body.div.div.get('class') == ['noData']:
@@ -43,7 +51,7 @@ the url is http://f10.eastmoney.com/f10_v2/CompanySurvey.aspx?code='''
 def basic_info_csv(soup, file_csv):
   flag = soup.find(text = '该公司暂无基本资料')
   if flag:
-    state_public = False
+    state_public = 0
     id_A = '0'
     name = '0'
     abbr = '0'
@@ -53,7 +61,7 @@ def basic_info_csv(soup, file_csv):
     date_IPO = '0'
     price_IPO = '0'
   else:
-    state_public = True
+    state_public = 1
   if state_public:
     content_all = soup.find_all(class_='tips-fieldnameL')
     for content in content_all:
@@ -110,7 +118,7 @@ def share_info_csv(soup, file_csv):
 #this is the main function
 if __name__ == "__main__":
   # file preparation
-  file_url = '/home/adam/Quant/Projects/securities_list.csv'
+  file_url = '/home/adam/workspace/QuantStart/tmp/securities_list.csv'
   file_csv = open(file_url, 'w')
   file_csv.write('id,name,abbr,state_public,industry,area,capital_registered(billion),date_IPO,price_IPO,shares_notcurrent,shares_limited,shares_current,date_created,date_updated\n')
 
@@ -122,8 +130,12 @@ if __name__ == "__main__":
   prefix_str = ['sh', 'sh', 'sz', 'sz', 'sz', 'sz', 'sz']
   prefix_ini = [600000, 603000, 0, 1696, 1896, 2000, 300000]
   prefix_max = [1999, 999, 999, 0, 0, 776, 489]
+  '''prefix_str = ['sz', 'sz', 'sz', 'sz', 'sz']
+  prefix_ini = [0, 1696, 1896, 2000, 300000]
+  prefix_max = [999, 0, 0, 776, 489]'''
 
-  #Collect the basic information of the company
+  #Collect the basic information of the company();
+  
   for i in prefix:
     logging.warning('%d is i...' % i)
     for j in range(prefix_max[i]+1):
@@ -138,7 +150,7 @@ if __name__ == "__main__":
       (soup, state) = soup_read(url,file_csv)
       #if state is true, import the information into the csv file
       if state:
-        file_csv.write(id_tmp+',')
+        file_csv.write(url_postfix+',')
         basic_info_csv(soup, file_csv)
         (soup_share, state_share) = soup_read(url_share,file_csv)
         share_info_csv(soup_share, file_csv)
