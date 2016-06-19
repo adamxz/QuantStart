@@ -1,3 +1,5 @@
 eclipse.preferences.version=1
+encoding//src/dailyprice_table_create_sql.py=utf-8
+encoding//src/data.py=utf-8
 encoding//src/security_create_csv.py=utf-8
 encoding//src/security_create_sql.py=utf-8
