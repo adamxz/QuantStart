@@ -10,21 +10,20 @@ stockid/000562.phtml?year=2014&jidu=4
 
 #网页和脚本编码不一致，需要编码转换
 #使中文可以正常显示
-import sys
-reload(sys)
-sys.setdefaultencoding( "utf-8" )
+#import sys
+#reload(sys)
+#sys.setdefaultencoding( "utf-8" )
 
 
 import logging
-from urllib2 import Request, urlopen
+from urllib import request
 from bs4 import BeautifulSoup
-import csv
-import MySQLdb
+import pymysql
 import datetime
 
 db_host = 'localhost'
 db_user = 'root'
-db_passwd = '123456'
+db_passwd = '1234'
 db_name = 'securities_master'
 table_column_num = 10
 table_name_security = 'data_security'
@@ -32,7 +31,7 @@ table_name_security = 'data_security'
 
 # Create the tables
 try:
-    conn = MySQLdb.connect(host = db_host, user = db_user, passwd = db_passwd, db = db_name,charset = 'utf8')
+    conn = pymysql.connect(host = db_host, user = db_user, passwd = db_passwd, db = db_name,charset = 'utf8')
 except Exception:
     print(Exception.args[0])
 else:
@@ -43,8 +42,8 @@ else:
     conn.commit()
     for i in table_name:
         j = str(i)
-        k = j[2:]
-        create_str = 'create table `daily_price_%s` (\
+        #drop_str = 'drop table `daily_price_%s`;' %j[4:10]
+        '''create_str = 'create table `daily_price_%s` (\
         `id` int not null auto_increment, \
         `date_price` date not null, \
         `price_open` decimal(19,4) null, \
@@ -53,12 +52,14 @@ else:
         `price_close` decimal(19,4) null, \
         `factor_adj` decimal(19,4) null, \
         `volumn` bigint null, \
+        `amount` bigint null, \
         primary key (`id`) \
-        )  engine=InnoDB auto_increment=1 default charset=utf8;' %j[2:]
-        cursor.execute(create_str)
+        )  engine=InnoDB auto_increment=1 default charset=utf8;' %j[4:10]
+        #cursor.execute(drop_str) 
+        cursor.execute(create_str)'''
+        add_str = 'ALTER TABLE daily_price_%s ADD `amount` bigint null;' %j[4:10]
+        cursor.execute(add_str)
         conn.commit()
     cursor.close()
     conn.close()
-   #for i in table_name:
-     #   print(i)
 

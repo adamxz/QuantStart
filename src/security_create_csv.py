@@ -10,13 +10,14 @@
 #剩余工作：空格消除（如万  科A）、异常处理、logging
 #网页和脚本编码不一致，需要编码转换
 #使中文可以正常显示
-import sys
-reload(sys)
-sys.setdefaultencoding( "utf-8" )
+# import sys
+# reload(sys)
+# sys.setdefaultencoding( "utf-8" )
 
 import logging
 import socket
-from urllib2 import Request, urlopen
+#from urllib2 import Request, urlopen
+from urllib import request
 from bs4 import BeautifulSoup
 import pypinyin
 import csv

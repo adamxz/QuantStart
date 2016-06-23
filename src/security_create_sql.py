@@ -3,23 +3,23 @@
 # @Author: Wang Meng
 # @Description: import the data of the securities from securities_list.csv into mysql database
 
-import sys
-reload(sys)
-sys.setdefaultencoding( "utf-8" )
+# import sys
+# reload(sys)
+# sys.setdefaultencoding( "utf-8" )
 
 import csv
-import MySQLdb
+import pymysql
 import datetime
 
 file_url = "/home/adam/workspace/QuantStart/tmp/securities_list.csv"
 db_host = 'localhost'
 db_user = 'root'
-db_passwd = '123456'
+db_passwd = '1234'
 db_name = 'securities_master'
 db_column_num = 14
 
 try:
-    conn = MySQLdb.connect(host = db_host, user = db_user, passwd = db_passwd, db = db_name,charset = 'utf8')
+    conn = pymysql.connect(host = db_host, user = db_user, passwd = db_passwd, db = db_name,charset = 'utf8')
     file_csv = open(file_url)
     f_csv = csv.reader(file_csv)
 except Exception:
