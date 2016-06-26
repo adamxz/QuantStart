@@ -42,7 +42,7 @@ else:
     conn.commit()
     for i in table_name:
         j = str(i)
-        #drop_str = 'drop table `daily_price_%s`;' %j[4:10]
+        drop_str = 'drop table `daily_price_%s`;' %j[4:10]
         '''create_str = 'create table `daily_price_%s` (\
         `id` int not null auto_increment, \
         `date_price` date not null, \
@@ -57,8 +57,8 @@ else:
         )  engine=InnoDB auto_increment=1 default charset=utf8;' %j[4:10]
         #cursor.execute(drop_str) 
         cursor.execute(create_str)'''
-        add_str = 'ALTER TABLE daily_price_%s ADD `amount` bigint null;' %j[4:10]
-        cursor.execute(add_str)
+        #add_str = 'ALTER TABLE daily_price_%s ADD `amount` bigint null;' %j[4:10]
+        cursor.execute(drop_str)
         conn.commit()
     cursor.close()
     conn.close()
