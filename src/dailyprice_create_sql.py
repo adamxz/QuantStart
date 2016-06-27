@@ -82,6 +82,7 @@ if __name__ == '__main__':
     soup_table = soup.find_all(align = 'center') #从下标1开始，每8个一组数据。
     year_start = soup_table[0].find_all('option')[-5].string  # 获得年份
     year_range = range(year_today,int(year_start),-1)
+    insert_columns = 'id_security, date, price_open, price_high, price_close, price_low, volumn, amount, factor_adj'
     for year in year_range:
         soup = soup_read(id_security, year_today,quarter_today)
         soup_table = soup.find_all(align = 'center') #从下标1开始，每8个一组数据。
@@ -90,7 +91,6 @@ if __name__ == '__main__':
             insert_item.append(soup_table[i].a.string[7:17])
             for j in range(1,8):
                 insert_item.append(soup_table[i+j].string)
-            insert_str = 'insert into %s (%s) into values (%s)'
-                
+            sql.insert(insert_item, )
     
     print(soup)
