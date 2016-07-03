@@ -40,7 +40,7 @@ class Mysql(object):
         self.cursor.execute(insert_str)
         
     def select(self, select_columns, table_name):
-        select_str = 'select (%s) from %s' %(select_columns, table_name)
+        select_str = 'select %s from %s' %(select_columns, table_name)
         self.cursor.execute(select_str)
         
     def close_conn(self):
