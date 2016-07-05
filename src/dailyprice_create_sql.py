@@ -31,8 +31,9 @@ table_column_num = 10
 
 price_url = 'http://vip.stock.finance.sina.com.cn/corp/go.php/vMS_FuQuanMarketHistory/\
 stockid/%s.phtml?year=%d&jidu=%d'
-year_today = datetime.date.today().year
-quarter_today = datetime.date.today().month % 4
+today = datetime.date.today()
+year_today = today.year
+quarter_today = today.month % 4
 
 
 # return the soup. 
@@ -86,16 +87,39 @@ def unit_test(id_security, year_today, quarter_today, sql):
     soup_table = soup.find_all(align = 'center') #从下标1开始，每8个一组数据。
     year_start = soup_table[0].find_all('option')[-5].string  # 获得年份
     #year_range = range(year_today,int(year_start),-1)
-    year_range = range(2006, int(year_start),-1)
+    year_range = range(2006, int(year_start)-1,-1)
     insert_columns = 'id_security, date, price_open, price_high, price_close, price_low, volumn, amount, factor_adj'
+    #date_partition = '2006-06-30'
     for year in year_range:
         for quarter in range(4, 0, -1):
             soup = soup_read(id_security, year, quarter)
             soup_table = soup.find_all(align = 'center') #从下标1开始，每8个一组数据。      
+            '''for i in range(9,len(soup_table),8):
+                insert_item = "'" + str(id_security) + "', "
+                if year > 2006 or (year == 2006 and quarter >2):
+                    insert_item = insert_item + "'" + soup_table[i].a.string[7:17] + "'"
+                else:
+                    insert_item = insert_item + "'" + soup_table[i].string[8:18] + "'"
+                for j in range(1,8):
+                    insert_item = insert_item + ", '"+ soup_table[i+j].string + "'"
+                sql.insert(table_name, insert_columns, insert_item)
+                sql.conn.commit()'''
             for i in range(9,len(soup_table),8):
                 insert_item = "'" + str(id_security) + "', "
-                if year > 2006 or (year == 2006 and quarter >=2):
+                if year > 2006:
                     insert_item = insert_item + "'" + soup_table[i].a.string[7:17] + "'"
+                elif year == 2006:
+                    if quarter > 2:
+                        insert_item = insert_item + "'" + soup_table[i].a.string[7:17] + "'"
+                    elif quarter == 2:
+                        if soup_table[i].a:
+                            #date_partition = soup_table[i].a.string[7:17]
+                            insert_item = insert_item + "'" + soup_table[i].a.string[7:17] + "'"
+                        else:
+                            #date_partition = soup_table[i].string[8:18]
+                            insert_item = insert_item + "'" + soup_table[i].string[8:18] + "'"
+                    else:
+                        insert_item = insert_item + "'" + soup_table[i].string[8:18] + "'"
                 else:
                     insert_item = insert_item + "'" + soup_table[i].string[8:18] + "'"
                 for j in range(1,8):
@@ -110,16 +134,29 @@ def unit_action(id_securities, year_today, quarter_today, sql):
         soup = soup_read(id_security, year_today,quarter_today)
         soup_table = soup.find_all(align = 'center') #从下标1开始，每8个一组数据。
         year_start = soup_table[0].find_all('option')[-5].string  # 获得年份
-        year_range = range(year_today,int(year_start),-1)
+        year_range = range(year_today,int(year_start)-1,-1)
         insert_columns = 'id_security, date, price_open, price_high, price_close, price_low, volumn, amount, factor_adj'
+        date_partition = '2006-05-08'
         for year in year_range:
             for quarter in range(4, 0, -1):
                 soup = soup_read(id_security, year, quarter)
                 soup_table = soup.find_all(align = 'center') #从下标1开始，每8个一组数据。      
                 for i in range(9,len(soup_table),8):
                     insert_item = "'" + str(id_security) + "', "
-                    if year > 2006 or (year == 2006 and quarter >=2):
+                    if year > 2006:
                         insert_item = insert_item + "'" + soup_table[i].a.string[7:17] + "'"
+                    elif year == 2006:
+                        if quarter > 2:
+                            insert_item = insert_item + "'" + soup_table[i].a.string[7:17] + "'"
+                        elif quarter == 2:
+                            if date_partition > '2006-05-08':
+                                date_partition = soup_table[i].a.string[7:17]
+                                insert_item = insert_item + "'" + date_partition + "'"
+                            else:
+                                date_partition = soup_table[i].string[8:18]
+                                insert_item = insert_item + "'" + date_partition + "'"
+                        else:
+                            insert_item = insert_item + "'" + soup_table[i].string[8:18] + "'"
                     else:
                         insert_item = insert_item + "'" + soup_table[i].string[8:18] + "'"
                     for j in range(1,8):
@@ -131,4 +168,5 @@ def unit_action(id_securities, year_today, quarter_today, sql):
 if __name__ == '__main__':
     id_securities = get_id_security(db_host, db_user, db_passwd, db_name)
     sql = mysql.Mysql(db_host, db_user, db_passwd, db_name, charset_type)
-    unit_test(600001, year_today, quarter_today, sql)
+    #unit_action(id_securities, year_today, quarter_today, sql)
+    unit_test(600002, year_today, quarter_today, sql)
