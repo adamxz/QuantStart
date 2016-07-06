@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Apr 14 16:49:42 2016
+'''
+Created on Jul 6, 2016
 
-@author: wangmeng70
-"""
+@author: adam
+'''
 
 import datetime
 import os, os.path
@@ -11,22 +10,19 @@ import pandas as pd
 
 from abc import ABCMeta, abstractmethod
 
-from event import MarketEvent
+import mysql
+import configure
 
 class DataHandler(object):
-    """
-    DataHandler is an abstract base class providing an interface for
-    all subsequent (inherited) data handlers (both live and historic).
-
-    The goal of a (derived) DataHandler object is to output a generated
-    set of bars (OHLCVI) for each symbol requested. 
-
-    This will replicate how a live strategy would function as current
-    market data would be sent "down the pipe". Thus a historic and live
-    system will be treated identically by the rest of the backtesting suite.
-    """
-    
+    '''
+    classdocs
+    '''
     __metaclass__ = ABCMeta
+    
+    @abstractmethod
+    def get_all_symbols(self):
+        
+        raise NotImplementedError("Should implement get_all_symbols()")
     
     @abstractmethod
     def get_latest_bars(self, symbol, N = 1):
@@ -35,7 +31,7 @@ class DataHandler(object):
         or fewer if less bars are available.
         """
         
-        raise NotImplementedError("Should impolement get_latest_bars()")
+        raise NotImplementedError("Should implement get_latest_bars()")
         
     @abstractmethod
     def update_bars(self):
@@ -43,105 +39,43 @@ class DataHandler(object):
         Pushes the latest bar to the latest symbol structure
         for all symbols in the symbol list.
         """
-        raise NotImplementedError("Should impolement update_bars()")
+        raise NotImplementedError("Should implement update_bars()")
     
+class DataHandlerSQL(DataHandler):
     
-class DataHandlerHistoricCSV(DataHandler):
-    """
-    HistoricCSVDataHandler is designed to read CSV files for
-    each requested symbol from disk and provide an interface
-    to obtain the "latest" bar in a manner identical to a live
-    trading interface. 
-    """
+    def __init__(self, db_host = 'localhost', db_user = 'root', db_passwd = '1234', 
+                 db_name = 'securities_master', charset_type = 'utf8'):
+        self.db_host = db_host
+        self.db_user = db_user
+        self.db_passwd = db_passwd
+        self.db_name = db_name
+        self.charset_type = charset_type
+        
+        self.mysql = mysql.Mysql(db_host, db_user, db_passwd, db_name, charset_type)
+        self.mysql.open_conn()
     
-    def __init__(self, events, csv_dir, symbol_list):
-        """
-        Initialises the historic data handler by requesting
-        the location of the CSV files and a list of symbols.
-
-        It will be assumed that all files are of the form
-        'symbol.csv', where symbol is a string in the list.
-
-        Parameters:
-        events - The Event Queue.
-        csv_dir - Absolute directory path to the CSV files.
-        symbol_list - A list of symbol strings.
-        """
-        
-        self.events = events
-        self.csv_dir = csv_dir
-        self.symbol_list = symbol_list
-        
-        self.symbol_data = {}
-        self.latest_symbol_data = {}
-        self.continue_backtest = True
-        
-        self._open_convert_csv_files()
-        
-    def _open_convert_csv_files(self):
-        """
-        Opens the CSV files from the data directory, converting
-        them into pandas DataFrames within a symbol dictionary.
-
-        For this handler it will be assumed that the data is
-        taken from DTN IQFeed. Thus its format will be respected.
-        """
-        
-        combine_index = None
-        for s in self.symbol_list:
-            # Load the CSV file with no header information, indexed on date.
-            self.symbol_data[s] = pd.io.parsers.read_csv(
-            os.path.join(self.csv_dir, '%s.csv' % s), \
-            header = 0, index_col = 0, \
-            names = ['datetime', 'open', 'high', 'low', 'close', 'volume', 'oi']
-            )
-             
-            # Combine the index to pad forward values
-            if combine_index is None:
-                combine_index = self.symbol_data[s].index
-            else:
-                combine_index.union(self.symbol_data[s].index)
-                 
-        # Reindex the dataframe
-        for s in self.symbol.symbol_list:
-            self.symbol_data[s] = self.symbol_data[s].reindex(
-            index = combine_index, method = 'pad').iterrows()
-            
-    def _get_new_bar(self, symbol):
-        """
-        Returns the latest bar from the data feed as a tuple of 
-        (sybmbol, datetime, open, high, low, close, volume).
-        """
-        
-        for b in self.symbol_data[symbol]:
-            yield tuple([symbol, datetime.datetime.strptime(b[0], '%Y-%m-%d %H:%M:%s'), \
-            b[1][0], b[1][1], b[1][2], b[1][3], b[1][4]])
+    def get_all_symbols(self):
+        select_columns = 'id_A'
+        table_name = 'data_security'
+        num_symbols = self.mysql.select(select_columns, table_name)
+        id_symbol_tmp = self.mysql.cursor.fetchmany(num_symbols)
+        id_symbols = []
+        for id_tmp in id_symbol_tmp:
+            id_tmp = str(id_tmp)
+            id_symbols.append(id_tmp[4:10])
+        return id_symbols
             
     def get_latest_bars(self, symbol, N=1):
-        """
-        Returns the last N bars from the latest_symbol list,
-        or N-k if less available.
-        """
-        try:
-            bars_list = self.latest_symbol_data[symbol]
-        except KeyError:
-            print("This symbol is not available in the historical data set.")
-        else:
-            return bars_list[-N:]
+        pass
+    
+
+    def update_bars(self, symbols):
+        for symbol in symbols:
+            max_date = self.mysql.select('max(date)', 'daily_price', 'id_security', symbol)
+            if max_date == 'NULL':
+                print(symbol+' was not included in SQL...\n')
             
-    def update_bars(self):
-        """
-        Pushes the latest bar to the latest_symbol_data structure
-        for all symbols in the symbol list.
-        """
         
-        for s in self.symbol_list:
-            try:
-                bar = self._get_new_bar(s).next()
-            except StopIteration:
-                self.continue_backtest = False
-            else:
-                if bar is not None:
-                    self.latest_symbol_data[s].append(bar)
-        self.events.put(MarketEvent())
-                
+if __name__ == '__main__':
+    pass
+        

@@ -41,7 +41,12 @@ class Mysql(object):
         
     def select(self, select_columns, table_name):
         select_str = 'select %s from %s' %(select_columns, table_name)
-        self.cursor.execute(select_str)
+        return self.cursor.execute(select_str)
+    
+    def select_where(self, select_columns, table_name, where_column, where_value):
+        select_str = 'select %s from %s where %s = %s' %(select_columns, table_name, where_column, where_value)
+        return self.cursor.execute(select_str)
+        
         
     def close_conn(self):
         self.conn.commit()

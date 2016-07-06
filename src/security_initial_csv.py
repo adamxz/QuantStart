@@ -30,14 +30,14 @@ else, there is no data for the id.'''
 def soup_read(url, file_csv):
     user_agent = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'
     header = {'User-Agent': user_agent}
-    req = Request(url, headers = header)
+    req = request.Request(url, headers = header)
     try:
-        response = urlopen(req)
+        response = request.urlopen(req)
         page = response.read()
     except socket.error:
         logging.warning('%s is paused...' % url_postfix)
         time.sleep(1)
-        response = urlopen(req)
+        response = request.urlopen(req)
         page = response.read()
     response.close()
     soup = BeautifulSoup(page)
