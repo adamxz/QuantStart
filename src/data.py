@@ -12,6 +12,7 @@ from abc import ABCMeta, abstractmethod
 
 import mysql
 import configure
+import spider
 
 class DataHandler(object):
     '''
@@ -70,12 +71,16 @@ class DataHandlerSQL(DataHandler):
     
 
     def update_bars(self, symbols):
+        spider_engine = spider.Spider()
         for symbol in symbols:
-            max_date = self.mysql.select('max(date)', 'daily_price', 'id_security', symbol)
+            max_date = self.mysql.select_where('max(date)', 'daily_price', 'id_security', symbol)
             if max_date == 'NULL':
                 print(symbol+' was not included in SQL...\n')
+                
+                
             
         
 if __name__ == '__main__':
-    pass
+    print(datetime.datetime.now())
+    print(' is pouring into MySQL...\n')
         

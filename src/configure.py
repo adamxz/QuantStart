@@ -11,6 +11,10 @@ db_passwd = '1234'
 db_name = 'securities_master'
 charset_type = 'utf8'
 
+
+# HTTP connection
+timeout = 10
+
 # security_initial_csv
 # Get basic information for securities and pouring into csv file
 
