@@ -51,7 +51,7 @@ the url is http://f10.eastmoney.com/f10_v2/CompanySurvey.aspx?code='''
 def basic_info_csv(soup, file_csv):
     flag = soup.find(text = '该公司暂无基本资料')
     if flag:
-        state_public = 0
+        state_public_tmp = 0
         id_A = '0'
         name = '0'
         abbr = '0'
@@ -61,8 +61,8 @@ def basic_info_csv(soup, file_csv):
         date_IPO = '0'
         price_IPO = '0'
     else:
-        state_public = 1
-    if state_public:
+        state_public_tmp = 1
+    if state_public_tmp:
         content_all = soup.find_all(class_='tips-fieldnameL')
         for content in content_all:
             if content.string == 'A股代码':
@@ -82,6 +82,9 @@ def basic_info_csv(soup, file_csv):
                 date_IPO = content.find_next_sibling().string
                 if date_IPO == '--':
                     date_IPO = '0'
+                    state_public = 0
+                else:
+                    state_public = 1
             if content.string == '首日开盘价(元)':
                 price_IPO = content.find_next_sibling().string
                 if price_IPO == '--':

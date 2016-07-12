@@ -30,14 +30,15 @@ table_name = 'daily_price'
 test_table_name = 'daily_price_test'
 table_column_num = 10
 
-timeout = 5
+timeout = 10
 socket.setdefaulttimeout(timeout)
 
 price_url = 'http://vip.stock.finance.sina.com.cn/corp/go.php/vMS_FuQuanMarketHistory/\
 stockid/%s.phtml?year=%d&jidu=%d'
 today = datetime.date.today()
 year_today = today.year
-quarter_today = today.month % 4
+# 季度，向上取整
+quarter_today = int((today.month+3-1) / 3)
 
 
 # return the soup. 
@@ -53,9 +54,12 @@ def soup_read(id, year, quarter):
         logging.warning('%s is paused...' % id)
         time.sleep(5)
         response = request.urlopen(req)
-        page = response.read()
+        page = response.read().decode('gbk', 'ignore').encode('utf-8')
+        #page = response.read()
     response.close()
     # body-div-div id="main"
+    # sina网页有部分不符合标准的xml，如果使用‘lxml'无法正确解析，如002752 300208 300219 300234
+    #soup = BeautifulSoup(page, "html5lib")
     soup = BeautifulSoup(page, "lxml")
     return soup
 
@@ -68,7 +72,7 @@ def get_id_security(db_host, db_user, db_passwd, db_name):
         print(Exception.args[0])
     else:
         cursor = conn.cursor()
-        select_str = 'select %s from %s' %('id_A','data_security')
+        select_str = 'select %s from %s' %('id_security','data_security')
         num_security = cursor.execute(select_str)
         id_security_tmp = cursor.fetchmany(num_security)
         conn.commit()
@@ -155,7 +159,18 @@ def unit_action(id_securities, year_today, quarter_today, sql):
     sql.close_conn()
                     
 if __name__ == '__main__':
-    id_securities = get_id_security(db_host, db_user, db_passwd, db_name)
+    #id_securities = get_id_security(db_host, db_user, db_passwd, db_name)
+    id_securities = ['300388']
     sql = mysql.Mysql(db_host, db_user, db_passwd, db_name, charset_type)
-    unit_action(id_securities[312:], year_today, quarter_today, sql)
+    unit_action(id_securities, year_today, quarter_today, sql)
     #unit_test(600053, year_today, quarter_today, sql)
+    
+    '''
+    002752 300208 300219 3
+    Traceback (most recent call last):
+  File "dailyprice_create_sql.py", line 160, in <module>
+    unit_action(id_securities[2372:], year_today, quarter_today, sql)
+  File "dailyprice_create_sql.py", line 128, in unit_action
+    year_start = soup_table[0].find_all('option')[-5].string  # 获得年份
+IndexError: list index out of range
+'''

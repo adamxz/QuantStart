@@ -43,9 +43,13 @@ class Mysql(object):
         select_str = 'select %s from %s' %(select_columns, table_name)
         return self.cursor.execute(select_str)
     
+    def select_universe(self, select_str):
+        return self.cursor.execute(select_str)
+    
     def select_where(self, select_columns, table_name, where_column, where_value):
         select_str = 'select %s from %s where %s = %s' %(select_columns, table_name, where_column, where_value)
-        return self.cursor.execute(select_str)
+        self.cursor.execute(select_str)
+        return self.cursor.fetchall()
         
         
     def close_conn(self):
