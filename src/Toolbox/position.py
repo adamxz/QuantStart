@@ -24,7 +24,7 @@ class Position(object):
         self.sellable_volumn = 0
         self.price = 0.0
         self.avg_cost = 0
-        self.security = 0
+        self.security = ''
         
     def calculate_avg_cost(self, buy_volumn, buy_price):
         self.avg_cost = (self.avg_cost * self.total_volumn + buy_volumn * buy_price) / (self.total_volumn + buy_volumn)

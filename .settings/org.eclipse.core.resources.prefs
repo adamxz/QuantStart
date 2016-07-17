@@ -1,8 +1,11 @@
 eclipse.preferences.version=1
-encoding//src/commission.py=utf-8
-encoding//src/configure/ConfSpider.py=utf-8
-encoding//src/dailyprice_table_create_sql.py=utf-8
-encoding//src/security_initial_csv.py=utf-8
-encoding//src/security_initial_sql.py=utf-8
-encoding//src/spider.py=utf-8
+encoding//Store/dailyprice_table_create_sql.py=utf-8
+encoding//Store/event.py=utf-8
+encoding//Store/portfolio_qs.py=utf-8
+encoding//src/Toolbox/Configure/ConfSpider.py=utf-8
+encoding//src/Toolbox/commission.py=utf-8
+encoding//src/Toolbox/event.py=utf-8
+encoding//src/Toolbox/security_initial_csv.py=utf-8
+encoding//src/Toolbox/security_initial_sql.py=utf-8
+encoding//src/Toolbox/spider.py=utf-8
 encoding//src/test.py=utf-8

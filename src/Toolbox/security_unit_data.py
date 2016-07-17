@@ -25,4 +25,10 @@ class SecurityUnitData(object):
         '''
         self.security = security
         unit_data = data.get_latest_bars(security, date)[0]
-        self.open = unit_data.
+        self.open = unit_data.open
+        self.high = unit_data.high
+        self.close = unit_data.close
+        self.low = unit_data.low
+        self.volumn = unit_data.volumn
+        self.amount = unit_data.amount
+        self.factor = unit_data.factor_adj

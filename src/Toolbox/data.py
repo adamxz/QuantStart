@@ -5,14 +5,10 @@ Created on Jul 6, 2016
 '''
 
 import datetime
-import os, os.path
-import pandas as pd
-
 from abc import ABCMeta, abstractmethod
 
-from configure import ConfData as cd
-import mysql
-import spider
+from Toolbox.Configure import ConfData as cd
+from Toolbox import mysql, spider
 
 class DataHandler(object):
     '''
@@ -135,10 +131,4 @@ class DataHandlerSQL(DataHandler):
                         self.mysql.insert(cd.price_table_name, cd.price_insert_columns, insert_item)
     
     def _destruction_(self):
-        self.mysql.close_conn()
-            
-        
-if __name__ == '__main__':
-    print(datetime.datetime.now())
-    print(' is pouring into MySQL...\n')
-        
+        self.mysql.close_conn()        

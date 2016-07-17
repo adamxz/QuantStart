@@ -17,11 +17,14 @@ class Portfolio(object):
     '''
 
 
-    def __init__(self, positions, events, start_date, initial_capital = 10000.0):
+    def __init__(self, positions, events, start_date, starting_cash = 10000.0):
         '''
         Constructor
         '''
+        self.cash = starting_cash
         self.positions = positions
-        self.events = events
-        self.start_date = start_date
-        self.cash = initial_capital
+        self.starting_cash = starting_cash
+        self.portfolio_value = starting_cash
+        self.positions_value = 0.0
+        self.capital_used = 0.0
+        self.returns = 0.0

@@ -12,7 +12,7 @@ from bs4 import BeautifulSoup
 import logging
 import time
 
-import configure.ConfSpider as cs
+from .Configure import ConfSpider as cs
 
 socket.setdefaulttimeout(cs.timeout)
 
