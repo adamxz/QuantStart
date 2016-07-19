@@ -4,6 +4,7 @@ Created on Jul 12, 2016
 @author: adam
 '''
 
+
 class Position(object):
     '''
     total_amount 总持有股票数量, 包含可卖出和不可卖出部分
@@ -40,5 +41,5 @@ class Position(object):
         
     def update_price(self, data, date):
         tmp = data.get_latest_bars(self.security, date)
-        self.price = tmp[0]
+        self.price = tmp[0][4] # 前一天的收盘价
         

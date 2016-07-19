@@ -8,11 +8,10 @@ class Portfolio(object):
     '''
     cash 当前持有的现金
     positions 当前持有的股票(包含不可卖出的股票), 一个dict, key是股票代码, value是Position对象
-    unsell_positions 当前持有的不可卖出的股票(比如在A股T+1市场, 今天购票的股票), 并没有考虑股票今天是否停牌, 一个dict, key是股票代码, value是Position对象.
     starting_cash 初始资金
     portfolio_value 当前持有的股票和现金的总价值
     positions_value 当前持有的股票的总价值
-    capital_used 已使用的现金
+    cash_used 已使用的现金
     returns 当前的收益比例, 相对于初始资金
     '''
 
@@ -25,11 +24,16 @@ class Portfolio(object):
         self.starting_cash = starting_cash
         self.portfolio_value = starting_cash
         self.positions_value = 0.0
-        self.capital_used = 0.0
+        self.cash_used = 0.0
         self.returns = 0.0
         self.positions = None
-        self.unsell_positions = None
         
-    def update(self, positions):
+    def update_position(self, positions):
         self.positions = positions
+        self.positions_value = 0
+        self.portfolio_value = 0
+        for position in positions:
+            self.positions_value += position.total_volumn * positions.price
+            self.portfolio_value = self.cash + self.positions_value
+        self.returns = (self.portfolio_value - self.starting_cash) / self.starting_cash
         

@@ -9,6 +9,7 @@ import datetime
 from Toolbox.data import DataHandlerSQL
 from Toolbox import portfolio
 from Toolbox import position
+from Toolbox.Configure import ConfContext
 
 class context(object):
     '''
@@ -16,8 +17,8 @@ class context(object):
     portfolio
     '''
     
-    def __init__(self):
-        self.starting_date = datetime.date.today() - datetime.timedelta(days = 365)
+    def __init__(self, starting_date = ConfContext.default_starting_date):
+        self.starting_date = starting_date
         positions = position.Position()
         self.portfolio = portfolio.Portfolio(positions, starting_cash = 10000.0)
         self.current_dt = self.starting_date
@@ -26,14 +27,10 @@ class context(object):
     def set_universe(self, securities):
         self.universe = securities
         
+    def update_date(self):
+        if self.current_dt.weekday() < 4:
+            self.current_dt = self.current_dt + datetime.timedelta(days=1)
+        elif self.current_dt.weekday() == 4:
+            while self.current_dt.weekday() != 0:
+                self.current_dt = self.current_dt + datetime.timedelta(days=1)
         
-def initialize():
-    '''
-    初始化函数
-    '''
-    securities = ['sh600000']
-    set_universe(securities)
-    
-    
-def handle_data():
-    pass
