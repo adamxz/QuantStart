@@ -72,13 +72,14 @@ class DataHandlerSQL(DataHandler):
         当前日期需要确定
         '''
         date_str = str(date)
+        # 注意是date<'%s'，是为了避免未知函数，今天只能知道昨天的数据
         select_str = "select id_security, date, price_open, price_high, price_close, \
         price_low, volumn, amount, factor_adj from daily_price where id_security=%s \
         and date<'%s' order by date desc limit %d" %(symbol, date_str, N)
         num_res = self.mysql.select_universe(select_str)
         res = self.mysql.cursor.fetchmany(num_res)
         return res
-    
+       
 
     def update_bars(self, symbols):
         spider_engine = spider.Spider()
