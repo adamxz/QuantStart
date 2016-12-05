@@ -4,6 +4,8 @@ Created on Jul 12, 2016
 @author: adam
 '''
 
+from Toolbox.position import Position
+
 class Portfolio(object):
     '''
     cash 当前持有的现金
@@ -25,15 +27,16 @@ class Portfolio(object):
         self.portfolio_value = starting_cash
         self.positions_value = 0.0
         self.cash_used = 0.0
-        self.returns = 0.0
-        self.positions = None
+        self.return_ratio = 0.0
+        self.positions = {}
         
-    def update_position(self, positions):
-        self.positions = positions
-        self.positions_value = 0
-        self.portfolio_value = 0
-        for position in positions:
-            self.positions_value += position.total_volumn * positions.price
-            self.portfolio_value = self.cash + self.positions_value
+    def update_portfolio(self, security, trade_volumn, trade_price, order_style):
+        if security not in self.positions:
+            self.positions[security] = Position(security)
+            
+        self.positions[security].update_trade(trade_volumn, trade_price, order_style)
+        self.positions_value += self.positions[security].total_volumn * self.positions[security].price
+        self.cash = self.cash - trade_volumn * trade_price * order_style
+        self.portfolio_value += self.positions_value + self.cash
         self.returns = (self.portfolio_value - self.starting_cash) / self.starting_cash
         

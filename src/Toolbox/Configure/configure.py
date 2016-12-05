@@ -15,7 +15,7 @@ charset_type = 'utf8'
 # security_initial_csv
 # Get basic information for securities and pouring into csv file
 
-csv_url = '/home/adam/workspace/QuantStart/tmp/securities_list.csv'
+csv_url = '/disk/GitHub/QuantStart/tmp/securities_list.csv'
 csv_header = 'id,name,abbr,state_public,industry,area,capital_registered(billion),date_IPO,price_IPO,shares_notcurrent,shares_limited,shares_current,date_created,date_updated\n'
 basic_url = 'http://f10.eastmoney.com/f10_v2/CompanySurvey.aspx?code='
 share_url = 'http://f10.eastmoney.com/f10_v2/CapitalStockStructure.aspx?code='
@@ -29,7 +29,7 @@ prefix_max = [1999, 999, 999, 0, 0, 999, 999]
 # Basic information pouring into MySQL from csv file
 
 datasecurity_table_column_num = 14
-column_str = 'id_A,name,abbreviation,state_public,industry,area,capital_registered,date_IPO,price_IPO,shares_notcurrent,shares_limited,shares_current,date_created,date_updated'
+column_str = 'id_security,name,abbreviation,state_public,industry,area,capital_registered,date_IPO,price_IPO,shares_notcurrent,shares_limited,shares_current,date_created,date_updated'
 
 
 # dailyprice_initial_sql

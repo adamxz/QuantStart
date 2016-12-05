@@ -5,6 +5,4 @@ Created on Jul 19, 2016
 '''
 
 
-import datetime
-
-default_starting_date = datetime.date.today() - datetime.timedelta(days = 365)
+default_starting_cash = 10000.0

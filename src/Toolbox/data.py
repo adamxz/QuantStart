@@ -63,7 +63,7 @@ class DataHandlerSQL(DataHandler):
         id_symbols = []
         for id_tmp in id_symbol_tmp:
             id_tmp = str(id_tmp)
-            id_symbols.append(id_tmp[4:10])
+            id_symbols.append(id_tmp[2:10])
         return id_symbols
             
     def get_latest_bars(self, symbol, date, N=1):
@@ -74,7 +74,7 @@ class DataHandlerSQL(DataHandler):
         date_str = str(date)
         # 注意是date<'%s'，是为了避免未知函数，今天只能知道昨天的数据
         select_str = "select id_security, date, price_open, price_high, price_close, \
-        price_low, volumn, amount, factor_adj from daily_price where id_security=%s \
+        price_low, volumn, amount, factor_adj from daily_price where id_security='%s' \
         and date<'%s' order by date desc limit %d" %(symbol, date_str, N)
         num_res = self.mysql.select_universe(select_str)
         res = self.mysql.cursor.fetchmany(num_res)
@@ -86,7 +86,7 @@ class DataHandlerSQL(DataHandler):
         url_prefix = cd.price_url
         for symbol in symbols:
             print(symbol + ' is updating...')
-            max_date_tmp = self.mysql.select_where('max(date)', 'daily_price', 'id_security', symbol)
+            max_date_tmp = self.mysql.select_where('max(date)', 'daily_price', 'id_security', "'"+symbol+"'")
             if max_date_tmp[0][0]:               
                 max_date = max_date_tmp[0][0].strftime('%Y-%m-%d')
                 print(symbol + ' adds from ' + max_date + '...')
