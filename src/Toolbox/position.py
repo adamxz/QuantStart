@@ -28,17 +28,19 @@ class Position(object):
         self.security = security
         
     def calculate_avg_cost(self, trade_volumn, trade_price, order_style):
-        self.avg_cost = (self.avg_cost * self.total_volumn + trade_price * trade_volumn * order_style) \
+        avg_cost = (self.avg_cost * self.total_volumn + trade_price * trade_volumn * order_style) \
         / (self.total_volumn + trade_volumn * order_style)
+        return avg_cost
         
     def update_trade(self, trade_volumn, trade_price, order_style):
+        self.avg_cost = self.calculate_avg_cost(trade_volumn, trade_price, order_style)
         if order_style == 1:
             self.sellable_volumn = self.total_volumn
             self.total_volumn += trade_volumn
         elif order_style == -1:
             self.total_volumn -= trade_volumn
             self.sellable_volumn = self.total_volumn
-        self.avg_cost = self.calculate_avg_cost(trade_volumn, trade_price, order_style)
+        
         
     def update_price(self, data, date):
         tmp = data.get_latest_bars(self.security, date)

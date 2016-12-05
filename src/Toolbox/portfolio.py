@@ -35,7 +35,7 @@ class Portfolio(object):
             self.positions[security] = Position(security)
             
         self.positions[security].update_trade(trade_volumn, trade_price, order_style)
-        self.positions_value += self.positions[security].total_volumn * self.positions[security].price
+        self.positions_value += self.positions[security].total_volumn * trade_price
         self.cash = self.cash - trade_volumn * trade_price * order_style
         self.portfolio_value += self.positions_value + self.cash
         self.returns = (self.portfolio_value - self.starting_cash) / self.starting_cash
