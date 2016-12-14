@@ -1,0 +1,10 @@
+第一天：
+买入S1 (Price,Volumn)：
+	1. 初始化position: 更新avg_cost, volumn
+	2. 更新portfolio: 增加position,更新positions_value, cash, portfolio_value
+
+第二天：
+卖出S1 （Price,Volumn):
+	1. 更新portfolio: 
+         1) 更新position:更新avg_cost, volumn
+	

@@ -24,23 +24,25 @@ import csv
 import datetime
 import time
 
+import Toolbox.Configure.configure as conf
+
 '''return the soup and state. 
 if the state is true, there is data for the security; 
 else, there is no data for the id.'''
 def soup_read(url, file_csv):
     user_agent = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'
     header = {'User-Agent': user_agent}
-    req = Request(url, headers = header)
+    req = request.Request(url, headers = header)
     try:
-        response = urlopen(req)
+        response = request.urlopen(req)
         page = response.read()
     except socket.error:
         logging.warning('%s is paused...' % url_postfix)
         time.sleep(1)
-        response = urlopen(req)
+        response = request.urlopen(req)
         page = response.read()
     response.close()
-    soup = BeautifulSoup(page)
+    soup = BeautifulSoup(page, 'lxml')
     if soup.body.div.div.get('class') == ['noData']:
         return (soup, False)
     else:
@@ -51,18 +53,18 @@ the url is http://f10.eastmoney.com/f10_v2/CompanySurvey.aspx?code='''
 def basic_info_csv(soup, file_csv):
     flag = soup.find(text = '该公司暂无基本资料')
     if flag:
-        state_public = 0
+        state_public_tmp = 0
         id_A = '0'
         name = '0'
         abbr = '0'
         industry = '0'
         area = '0'
         capital_registered = '0'
-        date_IPO = '0'
+        date_IPO = '1970-01-01'
         price_IPO = '0'
     else:
-        state_public = 1
-    if state_public:
+        state_public_tmp = 1
+    if state_public_tmp:
         content_all = soup.find_all(class_='tips-fieldnameL')
         for content in content_all:
             if content.string == 'A股代码':
@@ -81,7 +83,10 @@ def basic_info_csv(soup, file_csv):
             if content.string == '上市日期':
                 date_IPO = content.find_next_sibling().string
                 if date_IPO == '--':
-                    date_IPO = '0'
+                    date_IPO = '1970-01-01'
+                    state_public = 0
+                else:
+                    state_public = 1
             if content.string == '首日开盘价(元)':
                 price_IPO = content.find_next_sibling().string
                 if price_IPO == '--':
@@ -98,19 +103,19 @@ def share_info_csv(soup, file_csv):
             if shares_nocurrent == '--':
                 shares_nocurrent = '0'
             else:
-                shares_nocurrent = filter(lambda ch: ch in '0123456789.', shares_nocurrent)
+                shares_nocurrent = shares_nocurrent.replace(',','')
         if content.string == '流通受限股份':
             shares_limited = content.find_next_sibling().string
             if shares_limited == '--':
                 shares_limited = '0'
             else:
-                shares_limited = filter(lambda ch: ch in '0123456789.', shares_limited)
+                shares_limited = shares_limited.replace(',','')
         if content.string == '已流通股份':
             shares_current = content.find_next_sibling().string
             if shares_current == '--':
                 shares_current = '0'
             else:
-                shares_current = filter(lambda ch: ch in '0123456789.', shares_current)
+                shares_current = shares_current.replace(',','')
         
     now = datetime.date.today()
     file_csv.write(shares_nocurrent+','+shares_limited+','+shares_current+','+str(now)+','+str(now)+'\n')
@@ -118,13 +123,13 @@ def share_info_csv(soup, file_csv):
 #this is the main function
 if __name__ == "__main__":
     # file preparation
-    file_url = '/home/adam/workspace/QuantStart/tmp/securities_list.csv'
+    file_url = conf.csv_url
     file_csv = open(file_url, 'w')
     file_csv.write('id,name,abbr,state_public,industry,area,capital_registered(billion),date_IPO,price_IPO,shares_notcurrent,shares_limited,shares_current,date_created,date_updated\n')
 
     #url preparation
-    url_ini_basic = 'http://f10.eastmoney.com/f10_v2/CompanySurvey.aspx?code='
-    url_ini_share = 'http://f10.eastmoney.com/f10_v2/CapitalStockStructure.aspx?code='
+    url_ini_basic = conf.basic_url
+    url_ini_share = conf.share_url
 
     prefix = range(7)
     prefix_str = ['sh', 'sh', 'sz', 'sz', 'sz', 'sz', 'sz']
